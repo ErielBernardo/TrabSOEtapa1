@@ -14,7 +14,7 @@ void touch(char *buffer);
 void mkdir(char *buffer);
 void copy(char *buffer);
 void del(char *buffer);
-
+void menu_descr(char *buffer);
 
 int main(int argc , char *argv[])
 {
@@ -39,11 +39,7 @@ int main(int argc , char *argv[])
     printf("Socket Created\n");
 
     //Prepare the sockaddr_in structure
-    server = gethostbyname("kaleandra");  //change here to work outside the VM
-/*  server.sin_addr.s_addr = inet_addr("127.0.0.1");
- *  server.sin_family = AF_INET;
- *  server.sin_port = htons( 8888 );
- */
+    server = gethostbyname("localhost");  //change here to work outside the VM
 
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
@@ -60,14 +56,17 @@ int main(int argc , char *argv[])
     printf("\nConnected\n");
 
 
+
     while(1)
     {
         strcpy(buffer, "");
-        opt = menu();
-        option(opt, buffer); // Função seleciona a ação e passa o endereço de buffer
+        menu_descr(buffer);
+        printf("\n buffer = %s\n\n\n", buffer);
+        //opt = menu();
+        //option(opt, buffer); // Função seleciona a ação e passa o endereço de buffer
 
         //Send some msg
-        if( send(socket_desc, buffer, 255, 0) < 0)
+        if(send(socket_desc, buffer, 256, 0) < 0)
         {
             perror("Send failed");
             close(socket_desc);
@@ -84,7 +83,7 @@ int main(int argc , char *argv[])
             return -1;
         }
         printf("Reply received: ");
-        printf("%s\n",buffer);
+        printf("\n%s\n\n",buffer);
         //close(socket_desc);
     }
 
@@ -92,99 +91,18 @@ int main(int argc , char *argv[])
 
 }
 
-int menu(void)
+void menu_descr(char *buffer)
 {
-    int opt;
+    printf("\n\n\n ######### funcoes suportadas ############");
+    printf("\n listar                     -> 'ls -la', 'ls' ");
+    printf("\n criar diretorio            -> 'mkdir arg'          onde 'arg' e o nome ou caminho completodo diretorio novo desejado");
+    printf("\n criar arquivo              -> 'touch arg'          onde 'arga e o nome do arquivo desejedo");
+    printf("\n copiar                     -> 'cp arg0 arg1'       onde 'arg0' e o arquivo de origem, 'arg1' arquivo de destino ou camiho do diretorio");
+    printf("\n remover arquivo ou pasta   -> 'rm arg, rm -r arg'  onde 'arg' e o nome do arquivo ou pasta a ser removido");
+    printf("\n");
 
-    printf("\n\n\n\n\n\n Menu\n 1 listar \n 2 criar diretório\n 3 criar arquivo\n 4 copiar\n 5 apagar\n");
-    printf("Write a option: ");
-    scanf("%d", &opt);
-
-    return opt;
+//    scanf("%s", buffer);
+    gets(buffer);
+    printf("\n buffer = %s\n", buffer);
 }
 
-void option(int opt, char *buffer)
-{
-    switch (opt)
-    {
-        //clrscr(); // a função clrscr(); é para limpar a tela
-        case 1:
-            list(buffer);
-        break;
-
-        case 2:
-            mkdir(buffer);
-        break;
-
-        case 3:
-            touch(buffer);
-        break;
-
-        case 4:
-            copy(buffer);
-        break;
-
-        case 5:
-            del(buffer);
-        break;
-
-        default :
-            printf ("Valor invalido!\n");
-    }
-    printf("\n \n");
-}
-
-void list(char *buffer)
-{
-    strcpy(buffer, "ls -la");
-}
-
-void touch(char *buffer)
-{
-    char arg0[256];
-
-    printf("\n--> insira o nome do arquivo\n");
-    fgets(arg0, 256, stdin);
-    fgets(arg0, 256, stdin);
-
-    strcpy(buffer, "touch ");
-    strcat(buffer, arg0);
-}
-
-void mkdir(char *buffer)
-{
-    char arg0[256];
-
-    printf("\n--> insira o nome do diretorio\n");
-    fgets(arg0,256,stdin);
-
-    strcpy(buffer, "mkdir ");
-    strcat(buffer, arg0);
-}
-
-void copy(char *buffer)
-{
-    char arg0[256], arg1[256];
-
-    printf("\n--> insira o nome/addr do arquivo/pasta a ser copiado\n");
-    fgets(arg0,256,stdin);
-
-    strcpy(buffer, "rm ");
-    strcat(buffer, arg0);
-
-    printf("\n--> insira o addr de destino\n");
-    fgets(arg0,256,stdin);
-
-    strcat(buffer, arg1);
-}
-
-void del(char *buffer)
-{
-    char arg0[256];
-
-    printf("\n--> insira o nome/addr do arquivo/pasta a ser removido\n");
-    fgets(arg0,256,stdin);
-
-    strcpy(buffer, "rm ");
-    strcat(buffer, arg0);
-}
