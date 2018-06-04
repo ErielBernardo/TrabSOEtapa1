@@ -3,14 +3,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <netinet/in.h>
-
 
 int main(int argc , char *argv[])
 {
     int socket_desc , new_socket , c, portn;
     struct sockaddr_in server , client;
-    char buffer[256];
+    char *buffer[2000];
     char **in=NULL;
     int count=0;
     portn = 9000;
@@ -58,18 +58,35 @@ int main(int argc , char *argv[])
 
     while(1)
     {
-        //Read the message from socket
+        int read_size;
+        while( (read_size = recv(new_socket , &buffer , 2000 , 0)) > 0 )
+        {
+            printf("\nHere is the message: %s", buffer[0]);
+        }
+
+        /*//Read the message from socket
         if (read(new_socket,buffer,255) < 0)
         {
             perror("ERROR reading from socket");
             close(socket_desc);
             return -1;
-        }
+        }*/
+
+        printf("\nHere is the message: %s", buffer[0]);
+        //execl("/bin", buffer[0], buffer[1], buffer[2], NULL);
+
+        /*fork
+        * se filho
+        *   faz execl
+        * se não
+        *   wait
+        * continue
+        */
 
         //option(opt);
         //execl("/bin", buffer, NULL);
-        system(buffer);
-        printf("\nHere is the message: %s", buffer);
+        //system(buffer);
+        //printf("\nHere is the message: %s", buffer);
 
         if (write(new_socket,"Message received",16) < 0)
         {

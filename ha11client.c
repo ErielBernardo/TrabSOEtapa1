@@ -25,6 +25,21 @@ int main(int argc , char *argv[])
 
     int opt;
 
+    FILE *fp;
+    char path[60];
+    char string[2048];
+
+    //system(buffer);
+    fp = popen("hostname", "r");
+    strcpy(string,"\n");
+    while (fgets(path, 60, fp) != NULL)
+    {
+        strcat(string,path);
+    }
+    pclose(fp);
+    printf("Here is the message: %s",string);
+
+
     portn = 9000;
 
     printf("\n ## Use CTRL + C para encerrar ##\n\n");
@@ -39,7 +54,7 @@ int main(int argc , char *argv[])
     printf("Socket Created\n");
 
     //Prepare the sockaddr_in structure
-    server = gethostbyname("kaleandra");  //change here to work outside the VM
+    server = gethostbyname("localhost");  //change here to work outside the VM
 /*  server.sin_addr.s_addr = inet_addr("127.0.0.1");
  *  server.sin_family = AF_INET;
  *  server.sin_port = htons( 8888 );
@@ -62,12 +77,13 @@ int main(int argc , char *argv[])
 
     while(1)
     {
+
         strcpy(buffer, "");
         opt = menu();
         option(opt, buffer); // Função seleciona a ação e passa o endereço de buffer
 
         //Send some msg
-        if( send(socket_desc, buffer, 255, 0) < 0)
+        if(send(socket_desc, buffer, 256, 0) < 0)
         {
             perror("Send failed");
             close(socket_desc);
@@ -144,7 +160,6 @@ void touch(char *buffer)
     char arg0[256];
 
     printf("\n--> insira o nome do arquivo\n");
-    fgets(arg0, 256, stdin);
     fgets(arg0, 256, stdin);
 
     strcpy(buffer, "touch ");
