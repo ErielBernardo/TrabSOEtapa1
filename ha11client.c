@@ -13,7 +13,7 @@ int main(int argc , char *argv[])
 {
     struct sockaddr_in serv_addr;
     struct hostent *server;
-    char buffer[256];
+    char buffer[2048];
     int socket_desc, portn;
 
     portn = 9000;
@@ -63,8 +63,8 @@ int main(int argc , char *argv[])
 
 
         //Receive reply
-        bzero(buffer,256);
-        if( recv(socket_desc, buffer, 255, 0) < 0)
+        bzero(buffer,2048);
+        if( recv(socket_desc, buffer, 2047, 0) < 0)
         {
             perror("Receive failed");
             close(socket_desc);
@@ -72,7 +72,7 @@ int main(int argc , char *argv[])
         }
         printf("Reply received: ");
         printf("\n%s\n\n",buffer);
-        close(socket_desc);
+        //close(socket_desc);
     }
     close(socket_desc);
     return 0;
