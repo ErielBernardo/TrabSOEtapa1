@@ -141,5 +141,3 @@ void *f_thread(int *arg)
     pthread_exit(0);
 
  }
-
-

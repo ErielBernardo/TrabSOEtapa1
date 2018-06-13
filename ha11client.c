@@ -7,13 +7,6 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-int menu(void);
-void option(int opt, char *buffer);
-void list(char *buffer);
-void touch(char *buffer);
-void mkdir(char *buffer);
-void copy(char *buffer);
-void del(char *buffer);
 void menu_descr(char *buffer);
 
 int main(int argc , char *argv[])
@@ -22,8 +15,6 @@ int main(int argc , char *argv[])
     struct hostent *server;
     char buffer[256];
     int socket_desc, portn;
-
-    int opt;
 
     portn = 9000;
 
@@ -40,7 +31,6 @@ int main(int argc , char *argv[])
 
     //Prepare the sockaddr_in structure
     server = gethostbyname("localhost");  //change here to work outside the VM
-
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
@@ -62,11 +52,9 @@ int main(int argc , char *argv[])
         strcpy(buffer, "");
         menu_descr(buffer);
         printf("\n buffer = %s\n\n\n", buffer);
-        //opt = menu();
-        //option(opt, buffer); // Função seleciona a ação e passa o endereço de buffer
 
         //Send some msg
-        if(send(socket_desc, buffer, 256, 0) < 0)
+        if(send(socket_desc, buffer, 255, 0) < 0)
         {
             perror("Send failed");
             close(socket_desc);
@@ -84,9 +72,9 @@ int main(int argc , char *argv[])
         }
         printf("Reply received: ");
         printf("\n%s\n\n",buffer);
-        //close(socket_desc);
+        close(socket_desc);
     }
-
+    close(socket_desc);
     return 0;
 
 }
@@ -94,15 +82,16 @@ int main(int argc , char *argv[])
 void menu_descr(char *buffer)
 {
     printf("\n\n\n ######### funcoes suportadas ############");
-    printf("\n listar                     -> 'ls -la', 'ls' ");
-    printf("\n criar diretorio            -> 'mkdir arg'          onde 'arg' e o nome ou caminho completodo diretorio novo desejado");
-    printf("\n criar arquivo              -> 'touch arg'          onde 'arga e o nome do arquivo desejedo");
-    printf("\n copiar                     -> 'cp arg0 arg1'       onde 'arg0' e o arquivo de origem, 'arg1' arquivo de destino ou camiho do diretorio");
-    printf("\n remover arquivo ou pasta   -> 'rm arg, rm -r arg'  onde 'arg' e o nome do arquivo ou pasta a ser removido");
+    printf("\n listar               -> 'ls -la', 'ls' ");
+    printf("\n criar diretorio      -> 'mkdir arg'         onde 'arg' e o nome ou caminho completodo diretorio novo desejado");
+    printf("\n criar arquivo        -> 'touch arg'         onde 'arga e o nome do arquivo desejedo");
+    printf("\n copiar               -> 'cp arg0 arg1'      onde 'arg0' e o arquivo de origem, 'arg1' arquivo de destino ou camiho do diretorio");
+    printf("\n remover arq ou pasta -> 'rm arg, rm -r arg' onde 'arg' e o nome do arquivo ou pasta a ser removido");
     printf("\n");
+    fgets(buffer,255,stdin);
 
 //    scanf("%s", buffer);
-    gets(buffer);
+//    gets(buffer);
     printf("\n buffer = %s\n", buffer);
 }
 
