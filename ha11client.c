@@ -13,12 +13,11 @@ int main(int argc , char *argv[])
 {
     struct sockaddr_in serv_addr;
     struct hostent *server;
-    char buffer[2048];
+    char buffer[4096];
     int socket_desc, portn;
+    char *checker = NULL;
 
     portn = 9000;
-
-    printf("\n ## Use CTRL + C para encerrar ##\n\n");
 
     //Create socket
     socket_desc = socket(AF_INET , SOCK_STREAM , 0);
@@ -33,7 +32,9 @@ int main(int argc , char *argv[])
     server = gethostbyname("localhost");  //change here to work outside the VM
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
+    bcopy((char *)server->h_addr,
+         (char *)&serv_addr.sin_addr.s_addr,
+         server->h_length);
     serv_addr.sin_port = htons(portn);
 
     //Connect to remote server
@@ -43,40 +44,44 @@ int main(int argc , char *argv[])
         close(socket_desc);
         return -1;
     }
-    printf("\nConnected\n");
-
-
+    printf("Connected\n");
 
     while(1)
     {
+        char *checker = NULL;
+        //Send some msg
+        /*printf("Write a message: ");
+        fgets(buffer,255,stdin);*/
         strcpy(buffer, "");
         menu_descr(buffer);
-        printf("\n buffer = %s\n\n\n", buffer);
 
-        //Send some msg
-        if(send(socket_desc, buffer, 255, 0) < 0)
+        if( send(socket_desc , buffer , 255 , 0) < 0)
         {
             perror("Send failed");
             close(socket_desc);
             return -1;
         }
 
-
         //Receive reply
-        bzero(buffer,2048);
-        if( recv(socket_desc, buffer, 2047, 0) < 0)
+        bzero(buffer,4096);
+        if( recv(socket_desc, buffer , 4095 , 0) < 0)
         {
             perror("Receive failed");
             close(socket_desc);
             return -1;
         }
         printf("Reply received: ");
-        printf("\n%s\n\n",buffer);
-        //close(socket_desc);
+        printf("%s\n",buffer);
+
+        checker = strstr(buffer, "Connection Closed");
+        if(checker == buffer)
+        {
+            break;
+        }
     }
     close(socket_desc);
-    return 0;
 
+    return 0;
 }
 
 void menu_descr(char *buffer)
@@ -87,11 +92,8 @@ void menu_descr(char *buffer)
     printf("\n criar arquivo        -> 'touch arg'         onde 'arga e o nome do arquivo desejedo");
     printf("\n copiar               -> 'cp arg0 arg1'      onde 'arg0' e o arquivo de origem, 'arg1' arquivo de destino ou camiho do diretorio");
     printf("\n remover arq ou pasta -> 'rm arg, rm -r arg' onde 'arg' e o nome do arquivo ou pasta a ser removido");
-    printf("\n");
+    printf("\n sair                 -> 'exit'");
+    printf("\n ->>");
     fgets(buffer,255,stdin);
-
-//    scanf("%s", buffer);
-//    gets(buffer);
-    printf("\n buffer = %s\n", buffer);
+    printf("\n\n");
 }
-
